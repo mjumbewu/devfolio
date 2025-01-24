@@ -22,48 +22,38 @@ concurrency:
 
 jobs:
   # First compile the code in a job called "build"
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Use Node.js 18
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
-
-    - name: Build
-      run: |
-        cd src
-        npm install
-        npx webpack
-        cd ..
-
-  # Finally, upload the compiled code in a job called "deploy"
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
 
-    # Make sure this job doesn't run until build is done
-    needs:
-      - build
-    
     steps:
-      - name: Checkout
+      - name: Check out code
         uses: actions/checkout@v4
-        
+  
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+  
+      - name: Build with npm
+        run: |
+          cd src
+          npm install
+          npm build
+          cd ..
+  
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload dist folder
           path: 'src/dist'
-          
+            
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
