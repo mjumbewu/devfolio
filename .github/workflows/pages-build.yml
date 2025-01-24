@@ -46,6 +46,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
+    # Make sure this job doesn't run until build is done
+    needs:
+      - build
     
     steps:
       - name: Checkout
